@@ -5,6 +5,7 @@ on:
   workflow_dispatch: {}
 permissions:
   contents: write
+  id-token: write
 concurrency:
   group: audio
   cancel-in-progress: false
@@ -23,6 +24,12 @@ jobs:
               || (sudo timeout 300 apt-get install -y -qq --no-install-recommends ffmpeg && exit 0)
             echo "$HOME/ffmpeg" >> "$GITHUB_PATH"
           fi
+      - name: Sign in to Google Cloud (keyless)
+        if: ${{ vars.STORAGE_BUCKET != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/196016401760/locations/global/workloadIdentityPools/github/providers/github
+          service_account: egw-audio-uploader@egw-khmer.iam.gserviceaccount.com
       - name: Make the next chapter's audio
         env:
           GH_TOKEN: ${{ github.token }}
@@ -31,6 +38,7 @@ jobs:
           MONTHLY_LIMIT: ${{ vars.MONTHLY_LIMIT }}
           MUSIC_VOLUME: ${{ vars.MUSIC_VOLUME }}
           PRIORITY_BOOKS: ${{ vars.PRIORITY_BOOKS }}
+          STORAGE_BUCKET: ${{ vars.STORAGE_BUCKET }}
         run: python3 make_audio.py
       - name: Save the list of finished chapters
         run: |
