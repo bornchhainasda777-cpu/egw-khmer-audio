@@ -15,7 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ffmpeg
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+        timeout-minutes: 10
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            mkdir -p "$HOME/ffmpeg" && cd "$HOME/ffmpeg"
+            curl -fsSL --retry 3 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz | tar xJ --strip-components=1 \
+              || (sudo timeout 300 apt-get install -y -qq --no-install-recommends ffmpeg && exit 0)
+            echo "$HOME/ffmpeg" >> "$GITHUB_PATH"
+          fi
       - name: Make the next chapter's audio
         env:
           GH_TOKEN: ${{ github.token }}
