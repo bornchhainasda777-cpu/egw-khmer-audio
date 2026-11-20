@@ -34,5 +34,14 @@
   "secs": 834,
   "url": "https://firebasestorage.googleapis.com/v0/b/egw-khmer.firebasestorage.app/o/audio%2Fdesire-of-ages%2Fdesire-of-ages-c04-6b8438bb19b8.mp3?alt=media",
   "voice": "Chhaina Born"
+ },
+ "desire-of-ages/c05": {
+  "chars": 21406,
+  "github": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c05.mp3",
+  "hash": "9cc85fc57836",
+  "made": "2026-11-20T23:07:13+00:00",
+  "secs": 1332,
+  "url": "https://firebasestorage.googleapis.com/v0/b/egw-khmer.firebasestorage.app/o/audio%2Fdesire-of-ages%2Fdesire-of-ages-c05-9cc85fc57836.mp3?alt=media",
+  "voice": "Chhaina Born"
  }
 }
