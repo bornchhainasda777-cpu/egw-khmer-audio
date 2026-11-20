@@ -1,18 +1,29 @@
 {
  "desire-of-ages/c01": {
   "chars": 25885,
+  "github": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c01.mp3",
   "hash": "915223e8ee5b",
   "made": "2026-11-20T09:33:15+00:00",
   "secs": 1619,
-  "url": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c01.mp3",
+  "url": "https://firebasestorage.googleapis.com/v0/b/egw-khmer.firebasestorage.app/o/audio%2Fdesire-of-ages%2Fdesire-of-ages-c01-915223e8ee5b.mp3?alt=media",
   "voice": "Chhaina Born"
  },
  "desire-of-ages/c02": {
   "chars": 10588,
+  "github": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c02.mp3",
   "hash": "ce7ef3188ca1",
   "made": "2026-11-20T09:23:51+00:00",
   "secs": 687,
-  "url": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c02.mp3",
+  "url": "https://firebasestorage.googleapis.com/v0/b/egw-khmer.firebasestorage.app/o/audio%2Fdesire-of-ages%2Fdesire-of-ages-c02-ce7ef3188ca1.mp3?alt=media",
+  "voice": "Chhaina Born"
+ },
+ "desire-of-ages/c03": {
+  "chars": 15565,
+  "github": "https://github.com/bornchhainasda777-cpu/egw-khmer-audio/releases/download/audio-desire-of-ages/desire-of-ages-c03.mp3",
+  "hash": "9708063b716e",
+  "made": "2026-11-20T10:45:08+00:00",
+  "secs": 988,
+  "url": "https://firebasestorage.googleapis.com/v0/b/egw-khmer.firebasestorage.app/o/audio%2Fdesire-of-ages%2Fdesire-of-ages-c03-9708063b716e.mp3?alt=media",
   "voice": "Chhaina Born"
  }
 }
