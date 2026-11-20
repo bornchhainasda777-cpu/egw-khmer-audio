@@ -22,6 +22,7 @@ PRIORITY = [b for b in (os.environ.get('PRIORITY_BOOKS') or 'desire-of-ages').sp
 MUSIC_VOLUME = os.environ.get('MUSIC_VOLUME') or '0.12'
 BITRATE = os.environ.get('BITRATE') or '64k'
 DRY = os.environ.get('DRY_RUN') == '1'
+BUCKET = os.environ.get('STORAGE_BUCKET', '')   # Firebase Storage bucket (fast streaming); empty = GitHub only
 NOTE_RE = re.compile(r'^\(ជំពូកនេះបកប្រែដោយម៉ាស៊ីន')
 KM = str.maketrans('0123456789', '០១២៣៤៥៦៧៨៩')
 
@@ -129,12 +130,40 @@ def build(parts, out, tmp):
         run(['ffmpeg', '-y', '-i', voice, '-ac', '1', '-b:a', BITRATE, out])
     return d
 
+# ---------------------------------------------------------------- Firebase Storage (fast streaming)
+def storage_url(obj):
+    return f'https://firebasestorage.googleapis.com/v0/b/{BUCKET}/o/' + urllib.parse.quote(obj, safe='') + '?alt=media'
+
+def to_storage(path, book, name, h):
+    obj = f"audio/{book}/{name[:-4]}-{h}.mp3"   # new name for every new recording, so caches never serve an old one
+    run(['gcloud', 'storage', 'cp', path, f'gs://{BUCKET}/{obj}', '--content-type=audio/mpeg',
+         '--cache-control=public, max-age=31536000'])
+    return storage_url(obj)
+
+def migrate(manifest):
+    # move chapters that are still only on GitHub to Firebase Storage (no Kiri credits used)
+    moved = 0
+    for key, m in manifest.items():
+        if 'firebasestorage' in m.get('url', ''):
+            continue
+        book = key.split('/')[0]
+        name = m['url'].rsplit('/', 1)[-1]
+        tmp = tempfile.mkdtemp()
+        run(['gh', 'release', 'download', 'audio-' + book, '-p', name, '-D', tmp])
+        m['github'] = m['url']
+        m['url'] = to_storage(os.path.join(tmp, name), book, name, m.get('hash', 'x'))
+        moved += 1
+        log('Moved to Firebase Storage:', key)
+    return moved
+
 # ---------------------------------------------------------------- main
 def main():
     manifest = json.load(open('manifest.json')) if os.path.exists('manifest.json') else {}
     state = json.load(open('state.json')) if os.path.exists('state.json') else {}
     month = datetime.now(timezone.utc).strftime('%Y-%m')
     if state.get('month') != month: state = {'month': month, 'count': 0}
+    if BUCKET and not DRY and migrate(manifest):
+        json.dump(manifest, open('manifest.json', 'w'), ensure_ascii=False, indent=1, sort_keys=True)
     if not KIRI_KEY and not DRY: log('No KIRI_API_KEY secret yet — nothing to do.'); return
     if state['count'] >= MONTHLY_LIMIT: log(f'Monthly limit reached ({MONTHLY_LIMIT} chapters). Waiting for next month.'); return
     todo = find_todo(manifest)
@@ -156,8 +185,10 @@ def main():
     if subprocess.run(['gh', 'release', 'view', tag], capture_output=True).returncode != 0:
         run(['gh', 'release', 'create', tag, '--title', 'Audio: ' + todo['book_title'], '--notes', 'Khmer audio for ' + todo['book_title']])
     run(['gh', 'release', 'upload', tag, out, '--clobber'])
+    gh_url = f'https://github.com/{REPO}/releases/download/{tag}/{name}'
+    url = to_storage(out, todo['book'], name, todo['hash']) if BUCKET else gh_url
     manifest[f"{todo['book']}/{todo['id']}"] = {
-        'url': f'https://github.com/{REPO}/releases/download/{tag}/{name}', 'hash': todo['hash'], 'chars': todo['chars'],
+        'url': url, 'github': gh_url, 'hash': todo['hash'], 'chars': todo['chars'],
         'secs': round(secs), 'voice': VOICE, 'made': datetime.now(timezone.utc).isoformat(timespec='seconds')}
     state['count'] += 1
     json.dump(manifest, open('manifest.json', 'w'), ensure_ascii=False, indent=1, sort_keys=True)
